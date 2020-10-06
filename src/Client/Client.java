@@ -1,5 +1,7 @@
 package Client;
 
+import Server.Server;
+
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.Socket;
@@ -9,6 +11,7 @@ public class Client {
     private static final String HOLA = "HOLA";
     private static final String OK = "OK";
     private static final String PADDING_AES = "AES/ECB/PKCS5Padding";
+    private static final String MSJ = "MSJ";
 
 
     private int puerto;
@@ -62,10 +65,17 @@ public class Client {
         return DatatypeConverter.parseBase64Binary(s);
     }
 
-    public void recieveFile(Socket ss) throws IOException {
-        DataInputStream dis = new DataInputStream(ss.getInputStream());
-        FileOutputStream fos = new FileOutputStream("copy.pdf");
-        byte[] buffer = new byte[4096];
+    public void recieveFile() throws IOException {
+        File file = new File("./"+ Server.file_name);
+        byte[] buffer =  new byte[4096];
+        InputStream in = socket.getInputStream();
+        OutputStream out = new FileOutputStream(file.getCanonicalPath());
+        int count;
+        while((count = in.read(buffer)) > 0){
+            out.write(buffer,0,count);
+        }
+        in.close();
+        out.close();
 
     }
 
@@ -79,21 +89,7 @@ public class Client {
                 pw.println(OK);
             }
 
-            byte[] buffer = new byte[4096];
-            InputStream in = socket.getInputStream();
-            OutputStream out = new FileOutputStream("./copia.pdf");
-            byte[] content = copy(in, new ByteArrayOutputStream()).toByteArray();
-            copy(new ByteArrayInputStream(content), out);
-//            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//            File file = new File("./recivido.pdf");
-//            FileWriter fw = new FileWriter(file);
-//            FileOutputStream fw = new FileOutputStream(new BufferedInputStream())
-//            int count;
-//
-//            while(in.read() > 0){
-//
-//            }
-
+            recieveFile();
         }
     }
 
