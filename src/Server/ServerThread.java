@@ -1,5 +1,7 @@
 package Server;
 
+import Client.Client;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -15,6 +17,7 @@ public class ServerThread extends Thread {
 
     private PrintWriter pw;
     private BufferedReader bf;
+
     
     public ServerThread(Socket socket, int id){
         this.id = id;
@@ -34,6 +37,9 @@ public class ServerThread extends Thread {
             byte[] buffer = new byte[4096];
             InputStream in = new FileInputStream(file);
             OutputStream out = socket.getOutputStream();
+            int n = file.getPath().length();
+            pw.println(file.getPath().substring(n-3,n));
+            pw.println(OK);
 
             int count;
             while ((count = in.read(buffer))>0){
@@ -74,7 +80,6 @@ public class ServerThread extends Thread {
                 System.out.println("El cliente: "+id+" esta listo");
             }
 
-            this.wait();
         } catch (Exception e){
             e.printStackTrace();
         }

@@ -25,23 +25,11 @@ public class Server {
     public static synchronized void sendAll(File file) throws Exception{
         for(Integer key : clientes.keySet()){
             ServerThread actual = clientes.get(key);
-            actual.wakeUp();
             actual.sendFile(file);
-//            actual.wakeUp();
-//            OutputStream out = actual.getSocket().getOutputStream();
-//            InputStream in = new FileInputStream(new File(filePath));
-//            byte[] buffer = new byte[4096];
-//
-//            int count;
-//            while((count = in.read()) > 0){
-//                out.write(buffer, 0, count);
-//            }
+            clientes.remove(key);
         }
     }
 
-//    public synchronized static void sAll(ServerThread c) {
-//        c.notifyAll();
-//    }
 
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);

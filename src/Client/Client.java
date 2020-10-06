@@ -32,6 +32,8 @@ public class Client {
 
     private int id;
 
+    String postFix;
+
 
 
     public Client(int puerto, String host) throws IOException {
@@ -43,15 +45,6 @@ public class Client {
         this.pw = new PrintWriter(this.socket.getOutputStream(), true);
     }
 
-
-    public static <T extends OutputStream> T copy(InputStream in, T out)
-            throws IOException {
-        byte[] buffer = new byte[1024];
-        for (int r = in.read(buffer); r != -1; r = in.read(buffer)) {
-            out.write(buffer, 0, r);
-        }
-        return out;
-    }
 
     public int getIdCliente(){
         return this.id;
@@ -66,7 +59,7 @@ public class Client {
     }
 
     public void recieveFile() throws IOException {
-        File file = new File("./"+ Server.file_name);
+        File file = new File("./copia2."+postFix);
         byte[] buffer =  new byte[4096];
         InputStream in = socket.getInputStream();
         OutputStream out = new FileOutputStream(file.getCanonicalPath());
@@ -76,6 +69,7 @@ public class Client {
         }
         in.close();
         out.close();
+        socket.close();
 
     }
 
@@ -89,7 +83,12 @@ public class Client {
                 pw.println(OK);
             }
 
-            recieveFile();
+            msjServidor = brServer.readLine();
+            postFix = msjServidor;
+            msjServidor = brServer.readLine();
+            if(msjServidor.equals(OK)){
+                recieveFile();
+            }
         }
     }
 
