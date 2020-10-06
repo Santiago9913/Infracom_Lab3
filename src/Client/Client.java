@@ -18,7 +18,9 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.security.*;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Calendar;
 
@@ -71,7 +73,7 @@ public class Client {
 
     private KeyPair keyPairCliente;
 
-    private SecretKey llaveCompartida;
+    private SecretKey sessionKey;
 
     private int id;
 
@@ -152,7 +154,7 @@ public class Client {
     private String descifrarMensajeSimetricoServidorCliente(byte[] textoCifrado) throws Exception{
         byte[] textoDescifradoEnBytes;
         Cipher cifrado = Cipher.getInstance(PADDING_AES);
-        cifrado.init(cifrado.DECRYPT_MODE, llaveCompartida);
+        cifrado.init(cifrado.DECRYPT_MODE, sessionKey);
         textoDescifradoEnBytes = cifrado.doFinal(textoCifrado);
         return toHexString(textoDescifradoEnBytes);
     }
@@ -191,6 +193,22 @@ public class Client {
                 String certificadoString = toHexString(certificadoBytes);
                 pw.println(certificadoString);
             }
+
+            //Guardar certificado del servidor
+            System.out.println("Reciviendo certificado del servidor...");
+            String certificadoSerrvidorStr = brServer.readLine();
+            byte[] certificadoServidorBytes = toByteArray(certificadoSerrvidorStr);
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            Certificate certificadoServidor = cf.generateCertificate(new ByteArrayInputStream(certificadoServidorBytes));
+            publicKeyServidor = certificadoServidor.getPublicKey();
+            pw.println(OK);
+
+            //Leer y descifrar la session key
+            String sessionKeyString = brServer.readLine();
+            byte[] sessionKeyBytes = toByteArray(sessionKeyString);
+            sessionKey = descifrarLlaveServidorCliente(sessionKeyBytes);
+
+
         }
     }
 
