@@ -59,7 +59,7 @@ public class Client {
     }
 
     public void recieveFile() throws IOException {
-        File file = new File("./copia2."+postFix);
+        File file = new File("./copias/copia2."+postFix);
         byte[] buffer =  new byte[4096];
         InputStream in = socket.getInputStream();
         OutputStream out = new FileOutputStream(file.getCanonicalPath());
