@@ -25,7 +25,7 @@ public class Server {
 
             ExecutorService pool = Executors.newFixedThreadPool(nThreads);
 
-            for(int i = 0; true; i++){
+            for(int i = 1; true; i++){
                 try{
                     Socket socketC = ss.accept();
                     pool.execute(new ServerThread(socketC, i));
