@@ -16,7 +16,7 @@ public class ServerThread extends Thread {
         this.id = id;
         this.socket = socket;
     }
-    
+
 
     public void run(){
         System.out.println("Atendiendo Cliente: " + id);
@@ -35,6 +35,7 @@ public class ServerThread extends Thread {
                 socket.close();
                 throw  new Exception("Error al conectarse");
             }
+            
 
         } catch (Exception e){
             e.printStackTrace();
