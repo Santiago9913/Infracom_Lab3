@@ -10,8 +10,8 @@ import java.util.concurrent.Executors;
 
 public class Server {
     private static int nThreads = 25;
-    public final static String A7X = "../files/a7x.mp4";
-    public final static String ROSES = "../files/roses.pdf";
+    public final static String A7X = "files/a7x.mp4";
+    public final static String ROSES = "files/roses.pdf";
 
     private static ServerSocket ss;
     private static int numClientes;
@@ -22,11 +22,11 @@ public class Server {
         clientes.remove(id);
     }
 
-    public static void sendAll(File file) throws Exception{
+    public static void sendAll(String filePath) throws Exception{
         for(Integer key : clientes.keySet()){
             Socket actual = clientes.get(key);
             OutputStream out = actual.getOutputStream();
-            InputStream in = new FileInputStream(file.getAbsolutePath());
+            InputStream in = new FileInputStream(new File(filePath));
             byte[] buffer = new byte[4096];
 
             int count;
@@ -67,11 +67,10 @@ public class Server {
                     System.out.println("Seleccione el archivo (1 o 2)");
                     System.out.println("    1 - A7X.mp4");
                     System.out.println("    2 - ROSES.pdf");
-                    File file;
                     int file_num = sc.nextInt();
                     file_name = file_num == 1 ? A7X : ROSES;
-                    file = new File(file_name);
-                    sendAll(file);
+                    File file = new File(file_name);
+                    sendAll(file.getCanonicalPath());
                 } else{
                     System.out.println("Esperando a mas clientes...");
                     System.out.println("El numero actual de clientes es: "+numClientes);
