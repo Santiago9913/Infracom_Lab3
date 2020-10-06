@@ -3,7 +3,6 @@ package Client;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.Socket;
-import org.apache.commons.io.IOUtils;
 
 public class Client {
 
