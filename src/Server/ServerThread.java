@@ -15,12 +15,13 @@ public class ServerThread extends Thread {
     public ServerThread(Socket socket, int id){
         this.id = id;
         this.socket = socket;
-
     }
+    
 
     public void run(){
         System.out.println("Atendiendo Cliente: " + id);
         String linea = "";
+        String file = Server.file_name;
 
         try{
             PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);

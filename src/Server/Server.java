@@ -3,6 +3,7 @@ package Server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,8 +14,13 @@ public class Server {
     public final static String ROSES = "../files/roses.pdf";
 
     private static ServerSocket ss;
-    private static int clientes;
-    public static String file_name;
+    private static int numClientes;
+    public static String file_name="";
+    private static HashMap<Integer, Socket> clientes = new HashMap<>();
+
+    public static void removeClient(int id){
+        clientes.remove(id);
+    }
 
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
@@ -24,13 +30,7 @@ public class Server {
         System.out.println("Ingrese El PORT: ");
         int port = sc.nextInt();
 
-        System.out.println("Seleccione el archivo (1 o 2)");
-        System.out.println("    1 - A7X.mp4");
-        System.out.println("    2 - ROSES.pdf");
-        int file_num = sc.nextInt();
-        while (file_num != 1 && file_num != 2) {
-            file_name = file_num == 1 ? A7X : ROSES;
-        }
+
 
         ss = new ServerSocket(port);
         System.out.println("[!] Iniciando Servidor En " + host +":" +port);
@@ -40,7 +40,24 @@ public class Server {
         for(int i = 1; true; i++){
             try{
                 Socket socketC = ss.accept();
-                pool.execute(new ServerThread(socketC, i));
+                ServerThread cliente = new ServerThread(socketC, i);
+                numClientes = clientes.size();
+                clientes.put(i,socketC);
+                pool.execute(cliente);
+
+                System.out.println("El numero actual de clientes es: "+numClientes);
+                System.out.println("Desea enviar un archivo? (SI o NO)");
+                String resp = sc.next();
+                if(resp.equals("SI")){
+                    System.out.println("Seleccione el archivo (1 o 2)");
+                    System.out.println("    1 - A7X.mp4");
+                    System.out.println("    2 - ROSES.pdf");
+                    int file_num = sc.nextInt();
+                    while (file_num != 1 && file_num != 2) {
+                        file_name = file_num == 1 ? A7X : ROSES;
+                    }
+                }
+
 
             } catch (IOException e) {
                 System.out.println("Error creando el socket cliente.");
