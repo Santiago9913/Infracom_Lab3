@@ -3,7 +3,6 @@ package Server;
 import java.io.*;
 import java.net.Socket;
 
-
 public class ServerThread extends Thread {
 
     private static final String HOLA = "HOLA";
@@ -12,8 +11,7 @@ public class ServerThread extends Thread {
 
     private int id;
     private Socket socket;
-
-
+    
     public ServerThread(Socket socket, int id){
         this.id = id;
         this.socket = socket;
