@@ -17,11 +17,26 @@ public class ServerThread extends Thread {
         this.socket = socket;
     }
 
+    public synchronized void sendFile() {
+        try {
+            this.wait();
+            //File transfer
+            OutputStream out = socket.getOutputStream();
+            File file = new File(Server.file_name);
+            InputStream in = new FileInputStream(file.getCanonicalPath());
+            byte[] buffer = new byte[4096];
+            int count;
+            while((count = in.read()) > 0){
+                out.write(buffer, 0, count);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public void run(){
         System.out.println("Atendiendo Cliente: " + id);
         String linea = "";
-        String file = Server.file_name;
 
         try{
             PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
@@ -40,6 +55,7 @@ public class ServerThread extends Thread {
             if(linea.equals(OK)){
                 System.out.println("El cliente: "+id+" esta listo");
             }
+            sendFile();
         } catch (Exception e){
             e.printStackTrace();
         }

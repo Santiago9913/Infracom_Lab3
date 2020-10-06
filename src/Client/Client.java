@@ -63,7 +63,12 @@ public class Client {
         return DatatypeConverter.parseBase64Binary(s);
     }
 
+    public void recieveFile(Socket ss) throws IOException {
+        DataInputStream dis = new DataInputStream(ss.getInputStream());
+        FileOutputStream fos = new FileOutputStream("copy.pdf");
+        byte[] buffer = new byte[4096];
 
+    }
 
     public void run() throws Exception{
         System.out.println("Estableciendo Conexion Con El Servidor...");
