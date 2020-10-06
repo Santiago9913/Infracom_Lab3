@@ -36,10 +36,6 @@ public class Server {
         }
     }
 
-    public static synchronized void sAll(ExecutorService pool) {
-        pool.notifyAll();
-    }
-
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("Ingrese El HOST: ");
@@ -47,6 +43,8 @@ public class Server {
 
         System.out.println("Ingrese El PORT: ");
         int port = sc.nextInt();
+
+
 
         ss = new ServerSocket(port);
         System.out.println("[!] Iniciando Servidor En " + host +":" +port);
@@ -72,9 +70,8 @@ public class Server {
                     int file_num = sc.nextInt();
                     file_name = file_num == 1 ? A7X : ROSES;
                     File file = new File(file_name);
-                    //sendAll(file.getCanonicalPath());
-                    sAll(pool);
-                } else {
+                    sendAll(file.getCanonicalPath());
+                } else{
                     System.out.println("Esperando a mas clientes...");
                     System.out.println("El numero actual de clientes es: "+numClientes);
                 }
