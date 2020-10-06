@@ -36,8 +36,8 @@ public class Server {
         }
     }
 
-    public static synchronized void sAll(ExecutorService pool) {
-        pool.notifyAll();
+    public synchronized static void sAll(ServerThread c) {
+        c.notifyAll();
     }
 
     public static void main(String[] args) throws Exception {
@@ -73,7 +73,7 @@ public class Server {
                     file_name = file_num == 1 ? A7X : ROSES;
                     File file = new File(file_name);
                     //sendAll(file.getCanonicalPath());
-                    sAll(pool);
+                    sAll(cliente);
                 } else {
                     System.out.println("Esperando a mas clientes...");
                     System.out.println("El numero actual de clientes es: "+numClientes);
