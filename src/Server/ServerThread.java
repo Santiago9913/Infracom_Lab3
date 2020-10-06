@@ -30,13 +30,16 @@ public class ServerThread extends Thread {
             linea = bf.readLine();
             if(linea.equals(HOLA)){
                 pw.println(OK);
-            } else{
+            } else {
                 pw.println(ERROR);
                 socket.close();
-                throw  new Exception("Error al conectarse");
+                throw new Exception("Error al conectarse");
             }
-            
 
+            linea = bf.readLine();
+            if(linea.equals(OK)){
+                System.out.println("El cliente: "+id+" esta listo");
+            }
         } catch (Exception e){
             e.printStackTrace();
         }

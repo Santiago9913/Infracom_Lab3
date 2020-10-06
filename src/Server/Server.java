@@ -1,6 +1,6 @@
 package Server;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -22,6 +22,20 @@ public class Server {
         clientes.remove(id);
     }
 
+    public static void sendAll(File file) throws Exception{
+        for(Integer key : clientes.keySet()){
+            Socket actual = clientes.get(key);
+            OutputStream out = actual.getOutputStream();
+            InputStream in = new FileInputStream(file.getAbsolutePath());
+            byte[] buffer = new byte[4096];
+
+            int count;
+            while((count = in.read()) > 0){
+                out.write(buffer, 0, count);
+            }
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.println("Ingrese El HOST: ");
@@ -41,21 +55,26 @@ public class Server {
             try{
                 Socket socketC = ss.accept();
                 ServerThread cliente = new ServerThread(socketC, i);
-                numClientes = clientes.size();
-                clientes.put(i,socketC);
                 pool.execute(cliente);
+                Thread.sleep(100);
+                clientes.put(i,socketC);
+                numClientes = clientes.size();
 
                 System.out.println("El numero actual de clientes es: "+numClientes);
                 System.out.println("Desea enviar un archivo? (SI o NO)");
                 String resp = sc.next();
-                if(resp.equals("SI")){
+                if(resp.toUpperCase().equals("SI")){
                     System.out.println("Seleccione el archivo (1 o 2)");
                     System.out.println("    1 - A7X.mp4");
                     System.out.println("    2 - ROSES.pdf");
+                    File file;
                     int file_num = sc.nextInt();
-                    while (file_num != 1 && file_num != 2) {
-                        file_name = file_num == 1 ? A7X : ROSES;
-                    }
+                    file_name = file_num == 1 ? A7X : ROSES;
+                    file = new File(file_name);
+                    sendAll(file);
+                } else{
+                    System.out.println("Esperando a mas clientes...");
+                    System.out.println("El numero actual de clientes es: "+numClientes);
                 }
 
 
