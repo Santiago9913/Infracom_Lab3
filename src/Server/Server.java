@@ -18,17 +18,16 @@ public class Server {
     public static String file_name="";
     private static HashMap<Integer, ServerThread> clientes = new HashMap<>();
 
-    public static void removeClient(int id){
+    public static synchronized void removeClient(int id){
         clientes.remove(id);
     }
 
 
 
-    public static synchronized void sendAll(File file) throws Exception{
+    public static void sendAll(File file) throws Exception{
         for(Integer key : clientes.keySet()){
             ServerThread actual = clientes.get(key);
             actual.sendFile(file);
-            clientes.remove(key);
         }
     }
 

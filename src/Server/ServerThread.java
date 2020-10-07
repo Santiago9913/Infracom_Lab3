@@ -23,6 +23,8 @@ public class ServerThread extends Thread {
     private PrintWriter pw;
     private BufferedReader bf;
 
+    int bufferSize = 4096;
+
     
     public ServerThread(Socket socket, int id){
         this.id = id;
@@ -52,37 +54,38 @@ public class ServerThread extends Thread {
 
     public synchronized void sendFile(File file) {
         try {
-            byte[] buffer = new byte[4096];
+            long sum = getCRC32Checksum(file,2*bufferSize);
+            byte[] sumBy = ByteBuffer.allocate(8).putLong(sum).array();
+            String sumStr = toHexString(sumBy);
+            System.out.println("ServerThread: " + sumStr);
+
+
+            byte[] buffer = new byte[2*bufferSize];
             InputStream in = new FileInputStream(file);
             OutputStream out = socket.getOutputStream();
             int n = file.getPath().length();
 
             pw.println(file.getPath().substring(n-3,n));
             pw.println(OK);
+            pw.println(sumStr);
 
 
-
+            long inicio = System.currentTimeMillis();
             int count;
             while ((count = in.read(buffer))>0){
                 out.write(buffer,0,count);
             }
+            long fin = System.currentTimeMillis() - inicio;
+            System.out.println(fin);
             in.close();
             out.close();
 
-            long sum = getCRC32Checksum(file,4096);
-            byte[] sumBy = ByteBuffer.allocate(8).putLong(sum).array();
-            String sumStr = toHexString(sumBy);
-            System.out.println("ServerThread: " + sumStr);
-            pw.println(sumStr);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public synchronized void wakeUp(){
-        this.notify();
-    }
 
     public void run(){
         System.out.println("Atendiendo Cliente: " + id);

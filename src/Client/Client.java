@@ -33,7 +33,7 @@ public class Client {
 
     private BufferedReader brCliente;
 
-    private int id;
+    private int bufferSize;
 
     String postFix;
 
@@ -48,12 +48,10 @@ public class Client {
         this.brCliente = new BufferedReader(new InputStreamReader(System.in));
         this.brServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.pw = new PrintWriter(this.socket.getOutputStream(), true);
+        this.bufferSize = 4096;
     }
 
 
-    public int getIdCliente(){
-        return this.id;
-    }
 
     public static String toHexString(byte[] array) {
         return DatatypeConverter.printBase64Binary(array);
@@ -79,7 +77,7 @@ public class Client {
 
     public void recieveFile() throws IOException {
         File file = new File("./copias/copia2."+postFix);
-        byte[] buffer =  new byte[4096];
+        byte[] buffer =  new byte[2*bufferSize];
         InputStream in = socket.getInputStream();
         OutputStream out = new FileOutputStream(file.getCanonicalPath());
         int count;
@@ -88,8 +86,7 @@ public class Client {
         }
         in.close();
         out.close();
-        serverSum = brServer.readLine();
-        checkSuma(4096,file,serverSum);
+        System.out.println(checkSuma(2*bufferSize,file,serverSum));
         socket.close();
 
     }
@@ -108,6 +105,7 @@ public class Client {
             postFix = msjServidor;
             msjServidor = brServer.readLine();
             if(msjServidor.equals(OK)){
+                serverSum = brServer.readLine();
                 recieveFile();
             }
         }
