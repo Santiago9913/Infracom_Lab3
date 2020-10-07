@@ -1,6 +1,5 @@
 package Server;
 
-import Client.Client;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
@@ -8,7 +7,6 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.zip.CRC32;
 import java.util.zip.CheckedInputStream;
-import java.util.zip.Checksum;
 
 public class ServerThread extends Thread {
 
