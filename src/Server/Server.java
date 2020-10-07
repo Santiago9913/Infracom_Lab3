@@ -16,25 +16,21 @@ public class Server {
     private static ServerSocket ss;
     private static int numClientes;
     public static String file_name="";
-    private static HashMap<Integer, Socket> clientes = new HashMap<>();
+    private static HashMap<Integer, ServerThread> clientes = new HashMap<>();
 
-    public static void removeClient(int id){
+    public static synchronized void removeClient(int id){
         clientes.remove(id);
     }
 
-    public static void sendAll(String filePath) throws Exception{
-        for(Integer key : clientes.keySet()){
-            Socket actual = clientes.get(key);
-            OutputStream out = actual.getOutputStream();
-            InputStream in = new FileInputStream(new File(filePath));
-            byte[] buffer = new byte[4096];
 
-            int count;
-            while((count = in.read()) > 0){
-                out.write(buffer, 0, count);
-            }
+
+    public static void sendAll(File file) throws Exception{
+        for(Integer key : clientes.keySet()){
+            ServerThread actual = clientes.get(key);
+            actual.sendFile(file);
         }
     }
+
 
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
@@ -49,16 +45,16 @@ public class Server {
         ss = new ServerSocket(port);
         System.out.println("[!] Iniciando Servidor En " + host +":" +port);
 
-        ExecutorService pool = Executors.newFixedThreadPool(nThreads);
 
         for(int i = 1; true; i++){
             try{
                 Socket socketC = ss.accept();
                 ServerThread cliente = new ServerThread(socketC, i);
-                pool.execute(cliente);
-                Thread.sleep(100);
-                clientes.put(i,socketC);
+                cliente.start();
+//                cliente.run();
+                clientes.put(i,cliente);
                 numClientes = clientes.size();
+                Thread.sleep(1000);
 
                 System.out.println("El numero actual de clientes es: "+numClientes);
                 System.out.println("Desea enviar un archivo? (SI o NO)");
@@ -70,8 +66,9 @@ public class Server {
                     int file_num = sc.nextInt();
                     file_name = file_num == 1 ? A7X : ROSES;
                     File file = new File(file_name);
-                    sendAll(file.getCanonicalPath());
-                } else{
+                    //sendAll(file.getCanonicalPath());
+                    sAll(pool);
+                } else {
                     System.out.println("Esperando a mas clientes...");
                     System.out.println("El numero actual de clientes es: "+numClientes);
                 }

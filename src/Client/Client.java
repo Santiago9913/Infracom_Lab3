@@ -1,15 +1,20 @@
 package Client;
 
+import Server.Server;
+
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.Socket;
-import org.apache.commons.io.IOUtils;
+import java.nio.ByteBuffer;
+import java.util.zip.CRC32;
+import java.util.zip.CheckedInputStream;
 
 public class Client {
 
     private static final String HOLA = "HOLA";
     private static final String OK = "OK";
     private static final String PADDING_AES = "AES/ECB/PKCS5Padding";
+    private static final String MSJ = "MSJ";
 
 
     private int puerto;
@@ -28,7 +33,11 @@ public class Client {
 
     private BufferedReader brCliente;
 
-    private int id;
+    private int bufferSize;
+
+    String postFix;
+
+    String serverSum = "";
 
 
 
@@ -39,21 +48,10 @@ public class Client {
         this.brCliente = new BufferedReader(new InputStreamReader(System.in));
         this.brServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.pw = new PrintWriter(this.socket.getOutputStream(), true);
+        this.bufferSize = 4096;
     }
 
 
-    public static <T extends OutputStream> T copy(InputStream in, T out)
-            throws IOException {
-        byte[] buffer = new byte[1024];
-        for (int r = in.read(buffer); r != -1; r = in.read(buffer)) {
-            out.write(buffer, 0, r);
-        }
-        return out;
-    }
-
-    public int getIdCliente(){
-        return this.id;
-    }
 
     public static String toHexString(byte[] array) {
         return DatatypeConverter.printBase64Binary(array);
@@ -63,7 +61,35 @@ public class Client {
         return DatatypeConverter.parseBase64Binary(s);
     }
 
+    private boolean checkSuma(int size, File file, String serverSum) throws IOException{
+        FileInputStream in = new FileInputStream(file);
+        CheckedInputStream ck = new CheckedInputStream(in,new CRC32());
+        byte[] buffer = new byte[size];
+        while(ck.read(buffer,0,buffer.length)>=0){}
+        long sum = ck.getChecksum().getValue();
+        byte[] sumBy = ByteBuffer.allocate(8).putLong(sum).array();
+        String sumStr = toHexString(sumBy);
+        System.out.println("Clientes: " + sumStr);
+        System.out.println("Servidor: " + serverSum);
+        in.close();
+        return serverSum.equals(sumStr)  ;
+    }
 
+    public void recieveFile() throws IOException {
+        File file = new File("./copias/copia2."+postFix);
+        byte[] buffer =  new byte[2*bufferSize];
+        InputStream in = socket.getInputStream();
+        OutputStream out = new FileOutputStream(file.getCanonicalPath());
+        int count;
+        while((count = in.read(buffer)) > 0){
+            out.write(buffer,0,count);
+        }
+        in.close();
+        out.close();
+        System.out.println(checkSuma(2*bufferSize,file,serverSum));
+        socket.close();
+
+    }
 
     public void run() throws Exception{
         System.out.println("Estableciendo Conexion Con El Servidor...");
@@ -75,21 +101,13 @@ public class Client {
                 pw.println(OK);
             }
 
-            byte[] buffer = new byte[4096];
-            InputStream in = socket.getInputStream();
-            OutputStream out = new FileOutputStream("./copia.pdf");
-            byte[] content = copy(in, new ByteArrayOutputStream()).toByteArray();
-            copy(new ByteArrayInputStream(content), out);
-//            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//            File file = new File("./recivido.pdf");
-//            FileWriter fw = new FileWriter(file);
-//            FileOutputStream fw = new FileOutputStream(new BufferedInputStream())
-//            int count;
-//
-//            while(in.read() > 0){
-//
-//            }
-
+            msjServidor = brServer.readLine();
+            postFix = msjServidor;
+            msjServidor = brServer.readLine();
+            if(msjServidor.equals(OK)){
+                serverSum = brServer.readLine();
+                recieveFile();
+            }
         }
     }
 
