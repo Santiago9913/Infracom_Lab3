@@ -2,8 +2,13 @@ package Server;
 
 import Client.Client;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.util.zip.CRC32;
+import java.util.zip.CheckedInputStream;
+import java.util.zip.Checksum;
 
 public class ServerThread extends Thread {
 
@@ -24,6 +29,10 @@ public class ServerThread extends Thread {
         this.socket = socket;
     }
 
+    public static String toHexString(byte[] array) {
+        return DatatypeConverter.printBase64Binary(array);
+    }
+
     public Socket getSocket(){
         return this.socket;
     }
@@ -32,14 +41,27 @@ public class ServerThread extends Thread {
         return this.id;
     }
 
+    private long getCRC32Checksum(InputStream stream, int size) throws IOException{
+        CheckedInputStream ck = new CheckedInputStream(stream,new CRC32());
+        byte[] buffer = new byte[size];
+        while(ck.read(buffer,0,buffer.length)>=0){}
+        return ck.getChecksum().getValue();
+    }
+
     public synchronized void sendFile(File file) {
         try {
             byte[] buffer = new byte[4096];
             InputStream in = new FileInputStream(file);
             OutputStream out = socket.getOutputStream();
             int n = file.getPath().length();
+            long sum = getCRC32Checksum(in, 4096);
+            byte[] sumBy = ByteBuffer.allocate(8).putLong(sum).array();
+            String sumStr = toHexString(sumBy);
+            System.out.println("ServerThread: " + sumStr);
             pw.println(file.getPath().substring(n-3,n));
             pw.println(OK);
+            pw.println(sumStr);
+
 
             int count;
             while ((count = in.read(buffer))>0){

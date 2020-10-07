@@ -22,6 +22,8 @@ public class Server {
         clientes.remove(id);
     }
 
+
+
     public static synchronized void sendAll(File file) throws Exception{
         for(Integer key : clientes.keySet()){
             ServerThread actual = clientes.get(key);
