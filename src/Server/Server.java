@@ -15,7 +15,7 @@ public class Server {
     private static ServerSocket ss;
     private static int numClientes;
     public static String file_name="";
-    private static HashMap<Integer, ServerThread> clientes = new HashMap<>();
+    private static HashMap<Integer, ServerThread> clientes =new HashMap<Integer, ServerThread>();
 
     public static synchronized void removeClient(int id){
         clientes.remove(id);
