@@ -88,8 +88,8 @@ public class Client {
         }
         in.close();
         out.close();
-        boolean hola = checkSuma(4096,file, serverSum);
-        System.out.println(hola);
+        serverSum = brServer.readLine();
+        checkSuma(4096,file,serverSum);
         socket.close();
 
     }
@@ -108,7 +108,6 @@ public class Client {
             postFix = msjServidor;
             msjServidor = brServer.readLine();
             if(msjServidor.equals(OK)){
-                serverSum = brServer.readLine();
                 recieveFile();
             }
         }

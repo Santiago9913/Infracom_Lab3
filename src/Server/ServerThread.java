@@ -41,10 +41,12 @@ public class ServerThread extends Thread {
         return this.id;
     }
 
-    private long getCRC32Checksum(InputStream stream, int size) throws IOException{
-        CheckedInputStream ck = new CheckedInputStream(stream,new CRC32());
+    private long getCRC32Checksum(File file, int size) throws IOException{
+        FileInputStream in = new FileInputStream(file);
+        CheckedInputStream ck = new CheckedInputStream(in,new CRC32());
         byte[] buffer = new byte[size];
         while(ck.read(buffer,0,buffer.length)>=0){}
+        in.close();
         return ck.getChecksum().getValue();
     }
 
@@ -54,13 +56,10 @@ public class ServerThread extends Thread {
             InputStream in = new FileInputStream(file);
             OutputStream out = socket.getOutputStream();
             int n = file.getPath().length();
-            long sum = getCRC32Checksum(in, 4096);
-            byte[] sumBy = ByteBuffer.allocate(8).putLong(sum).array();
-            String sumStr = toHexString(sumBy);
-            System.out.println("ServerThread: " + sumStr);
+
             pw.println(file.getPath().substring(n-3,n));
             pw.println(OK);
-            pw.println(sumStr);
+
 
 
             int count;
@@ -70,7 +69,12 @@ public class ServerThread extends Thread {
             in.close();
             out.close();
 
-            pw.println(MSJ);
+            long sum = getCRC32Checksum(file,4096);
+            byte[] sumBy = ByteBuffer.allocate(8).putLong(sum).array();
+            String sumStr = toHexString(sumBy);
+            System.out.println("ServerThread: " + sumStr);
+            pw.println(sumStr);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
