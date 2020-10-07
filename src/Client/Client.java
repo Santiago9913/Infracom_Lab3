@@ -37,8 +37,6 @@ public class Client {
 
     String serverSum = "";
 
-
-
     public Client(int puerto, String host) throws IOException {
         this.puerto = puerto;
         this.host = host;

@@ -20,6 +20,8 @@ public class ServerThread extends Thread {
 
     private PrintWriter pw;
     private BufferedReader bf;
+    public static File fallas = new File("./fallas.txt");
+    public File monitor = new File("./monitor" + this.id + ".txt");
 
     int bufferSize = 4096;
 
@@ -75,6 +77,7 @@ public class ServerThread extends Thread {
             }
             long fin = System.currentTimeMillis() - inicio;
             System.out.println(fin);
+            escribir(String.valueOf(fin));
             in.close();
             out.close();
 
@@ -84,6 +87,15 @@ public class ServerThread extends Thread {
         }
     }
 
+    public void escribir(String elapsed) {
+        try {
+            PrintWriter fw = new PrintWriter(fallas);
+            fw.write(elapsed);
+            fw.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public void run(){
         System.out.println("Atendiendo Cliente: " + id);

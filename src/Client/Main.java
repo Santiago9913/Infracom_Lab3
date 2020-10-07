@@ -5,11 +5,10 @@ import java.util.Scanner;
 public class Main {
 
     public static void run() throws Exception{
-        Scanner sc = new Scanner(System.in);
         System.out.println("Ingrese El Host Al Que Se Desea Conectar: ");
-        String host = sc.next();
+        String host = "0.0.0.0";
         System.out.println("Ingrese El Port Al Que Se Desea Conectar: ");
-        int port = sc.nextInt();
+        int port = 8080;
         Client client = new Client(port,host);
         client.run();
     }
