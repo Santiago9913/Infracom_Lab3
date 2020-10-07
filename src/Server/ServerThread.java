@@ -41,8 +41,10 @@ public class ServerThread extends Thread {
         return this.id;
     }
 
-    private long getCRC32Checksum(File file, int size) throws IOException{
-        FileInputStream in = new FileInputStream(file);
+    private long getCRC32Checksum(String fileName, int size) throws Exception{
+
+//        new FileInputStream(new File(getClass().getResource("Server/resources/"+fileName).toURI()));
+        InputStream in =  getContextClassLoader().getResourceAsStream("Server/resources/"+fileName);
         CheckedInputStream ck = new CheckedInputStream(in,new CRC32());
         byte[] buffer = new byte[size];
         while(ck.read(buffer,0,buffer.length)>=0){}
@@ -50,20 +52,21 @@ public class ServerThread extends Thread {
         return ck.getChecksum().getValue();
     }
 
-    public synchronized void sendFile(File file) {
+    public synchronized void sendFile(String fileName) {
         try {
-            long sum = getCRC32Checksum(file,2*bufferSize);
+            long sum = getCRC32Checksum(fileName,2*bufferSize);
             byte[] sumBy = ByteBuffer.allocate(8).putLong(sum).array();
             String sumStr = toHexString(sumBy);
             System.out.println("ServerThread: " + sumStr);
 
 
             byte[] buffer = new byte[2*bufferSize];
-            InputStream in = new FileInputStream(file);
+//            FileInputStream in = new FileInputStream(new File(getClass().getResource("Server/resources/"+fileName).toURI()));
+            InputStream in =  getContextClassLoader().getResourceAsStream("Server/resources/"+fileName);
             OutputStream out = socket.getOutputStream();
-            int n = file.getPath().length();
+            int n = fileName.length();
 
-            pw.println(file.getPath().substring(n-3,n));
+            pw.println(fileName.substring(n-3,n));
             pw.println(OK);
             pw.println(sumStr);
 

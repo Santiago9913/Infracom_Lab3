@@ -9,8 +9,8 @@ import java.util.Scanner;
 
 public class Server {
     private static int nThreads = 25;
-    public final static String A7X = "files/a7x.mp4";
-    public final static String ROSES = "files/roses.pdf";
+    public final static String A7X = "a7x.mp4";
+    public final static String ROSES = "roses.pdf";
 
     private static ServerSocket ss;
     private static int numClientes;
@@ -24,10 +24,10 @@ public class Server {
 
 
 
-    public static void sendAll(File file) throws Exception{
+    public static void sendAll(String fileName) throws Exception{
         for(Integer key : clientes.keySet()){
             ServerThread actual = clientes.get(key);
-            actual.sendFile(file);
+            actual.sendFile(fileName);
         }
     }
 
@@ -65,9 +65,8 @@ public class Server {
                     System.out.println("    2 - ROSES.pdf");
                     int file_num = sc.nextInt();
                     file_name = file_num == 1 ? A7X : ROSES;
-                    File file = new File(file_name);
 
-                    sendAll(file);
+                    sendAll(file_name);
                     System.out.println("Esperando a mas clientes...");
                     Thread.sleep(1000);
                     removeClient(i);
