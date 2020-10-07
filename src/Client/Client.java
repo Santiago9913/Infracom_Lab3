@@ -31,8 +31,6 @@ public class Client {
     private BufferedReader brServer;
 
 
-    private BufferedReader brCliente;
-
     private int bufferSize;
 
     String postFix;
@@ -45,7 +43,6 @@ public class Client {
         this.puerto = puerto;
         this.host = host;
         this.socket = new Socket(host, puerto);
-        this.brCliente = new BufferedReader(new InputStreamReader(System.in));
         this.brServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.pw = new PrintWriter(this.socket.getOutputStream(), true);
         this.bufferSize = 4096;
@@ -108,7 +105,10 @@ public class Client {
                 serverSum = brServer.readLine();
                 recieveFile();
             }
+            socket.close();
+            break;
         }
+        System.out.println("Archivo Recibido");
     }
 
 }

@@ -20,6 +20,7 @@ public class Server {
 
     public static synchronized void removeClient(int id){
         clientes.remove(id);
+        numClientes = clientes.size();
     }
 
 
@@ -66,11 +67,15 @@ public class Server {
                     int file_num = sc.nextInt();
                     file_name = file_num == 1 ? A7X : ROSES;
                     File file = new File(file_name);
-                    //sendAll(file.getCanonicalPath());
-                    sAll(pool);
+
+                    sendAll(file);
+                    System.out.println("Esperando a mas clientes...");
+                    Thread.sleep(1000);
+                    removeClient(i);
+                    System.out.println("El numero actual de clientes es: "+String.valueOf(numClientes-numClientes));
                 } else {
                     System.out.println("Esperando a mas clientes...");
-                    System.out.println("El numero actual de clientes es: "+numClientes);
+                    System.out.println("El numero actual de clientes es: "+String.valueOf(numClientes));
                 }
 
 
